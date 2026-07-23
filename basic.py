@@ -38,3 +38,8 @@ def create_student(student_id : int , student : Student):
     
     students[student_id] = student
     return students[student_id]
+
+@app.post("/createposts")
+def create_posts(payload:dict = Body(...)):
+    print(payload)
+    return {"message":"successfully saved"}
