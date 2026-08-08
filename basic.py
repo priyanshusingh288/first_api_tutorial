@@ -1,47 +1,31 @@
-from fastapi import FastAPI,Path
+from fastapi import FastAPI,HTTPException
 from typing import Optional
 from pydantic import BaseModel
+from fastapi.params import Body
 
 app = FastAPI()
 
-students = {
-    1: {
-        "name" : "priyanshu",
-        "class" : "iot h2",
-        "name" : "ayush",
-        "class": "cse b2",
-    }
-}
-
-class Student(BaseModel):
-    name : str
-    age : int
-    year : int
+items = []
 
 @app.get("/")
-def index():
+def root():
     return {"hello":"world"}
 
-@app.get("/get-students/{student_id}")
-def get_student(student_id : int = Path(...,description ="the student data you wanted")):
-    return students[student_id]
+@app.post("/items")
+def create_items(item:str):
+    items.append(item)
+    print(items)
+    return items
 
-@app.get("/get-by-name/{student_id}")
-def get_student(*,student_id : int ,name:Optional[str] = None,test:int):
-    for student_id in students:
-        if students[student_id]["name"] == name:
-            return students[student_id]
-    return {"data":"not found"}
+@app.get("/items")
+def list_limits(limit:int = 10):
+    print(limit)
+    return items[0:limit]
 
-@app.post("/create-student{student_id}")
-def create_student(student_id : int , student : Student):
-    if student_id in students:
-        return {"error" : "student exist"}
+@app.get("/items/{item_id}")
+def get_items(item_id:int) -> str:
+    if item_id < len(items):
+        return items[item_id]
+    else:
+        raise HTTPException(status_code=404, detail = "item not found")
     
-    students[student_id] = student
-    return students[student_id]
-
-@app.post("/createposts")
-def create_posts(payload:dict = Body(...)):
-    print(payload)
-    return {"message":"successfully saved"}
