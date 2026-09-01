@@ -38,7 +38,7 @@ I'm currently following a **19-hour FastAPI course by freeCodeCamp** while build
 Moving from basic FastAPI endpoints toward database-backed applications using:
 
 ```text
-FastAPI → SQLAlchemy → PostgreSQL
+FastAPI → SQLAlchemy ->PostgreSQL
 ```
 
 I'm also practicing API testing and building small projects alongside the course.
