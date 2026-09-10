@@ -2,7 +2,7 @@
 
 A repository documenting my journey of learning **FastAPI and backend development with Python**.
 
-I'm currently following a **19-hour FastAPI course by freeCodeCamp** while building small examples and experimenting with APIs.
+I'm currently following a **19-hour FastAPI course by freeCodeCamp** while building small examples and experimenting with APIs and databases.
 
 ## Tech Stack
 
