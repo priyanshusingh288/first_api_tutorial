@@ -16,7 +16,7 @@ class Post(BaseModel):
     rating: Optional[int] = None
 
 while True:
- try:     //implementing connection to my database using psycopg2//
+ try:     //implementing connection to my database using psycopg2 and doing alchemy CRUD//
     conn = psycopg2.connect(host = "localhost",database = "fastapi",user = "postgres",password = .... , cursor_factory=RealDictCursor)
     cursor = conn.cursor()
     print("database connected succesfully")
