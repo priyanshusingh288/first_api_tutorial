@@ -66,7 +66,7 @@ def create_product(product: Product):
 
 @app.get("/posts/{id}")
 def get_post(id: int,response: Response):  
-    cursor.execute("""select * from where id = %s""",(str(id)))
+    cursor.execute("""select * from products where id = %s""",(str(id)))
     post = cursor.fetchone()
     post = search_post(id)
     if not post:
