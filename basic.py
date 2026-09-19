@@ -17,7 +17,7 @@ class Product(BaseModel):
 
 while True:
  try:
-    conn = psycopg2.connect(host = "localhost",database = "fastapi",user = "postgres",password = '...' , cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(host = "localhost",database = "fastapi",user = "postgres",password = 'S1g2m3@pri' , cursor_factory=RealDictCursor)
     cursor = conn.cursor()
     print("database connected succesfully")
     break
@@ -73,18 +73,25 @@ def get_post(id: int,response: Response):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"item with id {id} not found :(")
     return {"post detail": post}
 
-@app.delete("/posts/{id}",status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id:int):
-    index = find_index(id)
-    if not index:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with this id:{id} not found")
-    my_posts.pop(index)
+@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(id: int):
+    cursor.execute("""DELETE FROM products WHERE id = %s RETURNING *""", (str(id),))
+    deleted_post = cursor.fetchone()
+    conn.commit()
+
+    if deleted_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"post with this id:{id} not found"
+        )
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+    
 
 @app.put("/posts/{id}")
 def update_post(id:int,post:Product):
-    cursor.execute("""UPDATE post set name = %s,price = %s,available = %s,inventory = %s RETURNING *""",
-                    (post.name, post.price, post.availbale, post.inventory))
+    cursor.execute("""UPDATE post set name = %s,price = %s,available = %s,inventory = %s  where id = %s RETURNING *""",
+                    (post.name, post.price, post.availbale, post.inventory,str(id)))
     updated_post = cursor.fetchone
     conn.commit()
     if update_post == None:
