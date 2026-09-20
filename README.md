@@ -27,7 +27,7 @@ I'm currently following a **19-hour FastAPI course by freeCodeCamp** while build
 * [x] Swagger / OpenAPI
 * [x] Path & query parameters
 * [x] CRUD operations
-* [ ] Database integration
+* [x] Database integration
 * [ ] Authentication & authorization
 * [ ] Deployment
 
