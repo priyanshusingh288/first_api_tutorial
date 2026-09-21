@@ -89,13 +89,15 @@ def delete_post(id: int):
     
 
 @app.put("/posts/{id}")
-def update_post(id:int,post:Product):
-    cursor.execute("""UPDATE post set name = %s,price = %s,available = %s,inventory = %s  where id = %s RETURNING *""",
-                    (post.name, post.price, post.availbale, post.inventory,str(id)))
-    updated_post = cursor.fetchone
+def update_post(id: int, post: Product):
+    cursor.execute(
+        """UPDATE products SET name = %s, price = %s, availbale = %s, inventory = %s WHERE id = %s RETURNING *""",
+        (post.name, post.price, post.availbale, post.inventory, id)
+    )
+    updated_post = cursor.fetchone()
     conn.commit()
-    if update_post == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with this id:{id} not found")
-        return {"data":updated_post}
 
+    if updated_post is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with this id:{id} not found")
     
+    return {"data": updated_post}
