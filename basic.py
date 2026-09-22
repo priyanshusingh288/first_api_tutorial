@@ -99,5 +99,5 @@ def update_post(id: int, post: Product):
 
     if updated_post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with this id:{id} not found")
-    
+
     return {"data": updated_post}
