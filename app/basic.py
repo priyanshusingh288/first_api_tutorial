@@ -2,20 +2,23 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
-from fastapi import FastAPI,Response,HTTPException,status
+from fastapi import FastAPI,Response,HTTPException,status,Depends
 from psycopg2.extras import RealDictCursor
 import time
 from app.config import settings
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from app import models
+from sqlalchemy.orm import session
+from app.database import get_db,engine
 
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 class Product(BaseModel):
     name: str
     price: int
-    availbale: bool = True  
+    availbale: bool = True 
     inventory: int = 0
 
 
@@ -52,6 +55,10 @@ def search_post(post_id: int):
         if p['id'] == post_id:  
             return p
     return None
+
+@app.get("/sqlalchemy")
+def posts(db:session = Depends(get_db)):
+    return {"status":"success"}
 
 @app.get("/")
 def root():
