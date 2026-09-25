@@ -10,6 +10,7 @@ import psycopg2
 from app import models
 from sqlalchemy.orm import session
 from app.database import get_db,engine
+from .import models
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -58,29 +59,32 @@ def search_post(post_id: int):
 
 @app.get("/sqlalchemy")
 def posts(db:session = Depends(get_db)):
-    return {"status":"success"}
+    post = db.query(models.Product)
+    print(post)
+    return {"status":"succesfull"}
 
 @app.get("/")
 def root():
     return {"hello":"world"}
 
 @app.get("/posts")
-def get_posts():
-    cursor.execute("""SELECT * FROM products""")
-    posts = cursor.fetchall()
-    print(posts)
-    return {"this is your ": my_posts}
+def get_posts(db:session = Depends(get_db)):
+    #cursor.execute("""SELECT * FROM products""")
+    #posts = cursor.fetchall()
+    post = db.query(models.Product).all()
+    return {"data":post}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_product(product: Product):
-    cursor.execute(
-        """INSERT INTO products (name, price, availbale, inventory) 
-           VALUES (%s, %s, %s, %s) RETURNING *""",
-        (product.name, product.price, product.availbale, product.inventory)
-    )
-    new_product = cursor.fetchone()
-    conn.commit()
-    return {"data": new_product}
+def create_product(product: Product,db:session = Depends(get_db)):
+    #cursor.execute(
+        #"""INSERT INTO products (name, price, availbale, inventory) 
+           #VALUES (%s, %s, %s, %s) RETURNING *""",
+        #(product.name, product.price, product.availbale, product.inventory)
+    #)
+    #new_product = cursor.fetchone()
+    #conn.commit()
+    new_post = models.Product(name = product.name,price = product.price,inventory = product.inventory)
+    return {"data": new_post}
 
 @app.get("/posts/{id}")
 def get_post(id: int,response: Response):  
