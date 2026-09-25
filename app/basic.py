@@ -19,7 +19,7 @@ app = FastAPI()
 class Product(BaseModel):
     name: str
     price: int
-    availbale: bool = True 
+    available: bool = True 
     inventory: int = 0
 
 
@@ -83,43 +83,51 @@ def create_product(product: Product,db:session = Depends(get_db)):
     #)
     #new_product = cursor.fetchone()
     #conn.commit()
-    new_post = models.Product(name = product.name,price = product.price,inventory = product.inventory)
+    new_post = models.Product(**product.dict())
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
     return {"data": new_post}
 
 @app.get("/posts/{id}")
-def get_post(id: int,response: Response):  
-    cursor.execute("""select * from products where id = %s""",(str(id)))
-    post = cursor.fetchone()
-    post = search_post(id)
-    if not post:
+def get_post(id: int,db:session = Depends(get_db)):  
+    #cursor.execute("""select * from products where id = %s""",(str(id)))
+    #post = cursor.fetchone()
+    #post = search_post(id)
+    find_post = db.query(models.Product).filter(models.Product.id == id).first()
+    print(find_post)
+    if not find_post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"item with id {id} not found :(")
-    return {"post detail": post}
+    return {"post detail": find_post}
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
-    cursor.execute("""DELETE FROM products WHERE id = %s RETURNING *""", (str(id),))
-    deleted_post = cursor.fetchone()
-    conn.commit()
-
-    if deleted_post is None:
+def delete_post(id: int,db:session = Depends(get_db)):
+    #cursor.execute("""DELETE FROM products WHERE id = %s RETURNING *""", (str(id),))
+    #deleted_post = cursor.fetchone()
+    #conn.commit()
+    deleted_post = db.query(models.Product).filter(models.Product.id == id)
+    if deleted_post.first() is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"post with this id:{id} not found"
         )
-
+    deleted_post.delete(synchronize_session=False)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
     
 
 @app.put("/posts/{id}")
-def update_post(id: int, post: Product):
-    cursor.execute(
-        """UPDATE products SET name = %s, price = %s, availbale = %s, inventory = %s WHERE id = %s RETURNING *""",
-        (post.name, post.price, post.availbale, post.inventory, id)
-    )
-    updated_post = cursor.fetchone()
-    conn.commit()
+def update_post(id: int, post: Product,db:session = Depends(get_db)):
+    #cursor.execute(
+        #"""UPDATE products SET name = %s, price = %s, availbale = %s, inventory = %s WHERE id = %s RETURNING *""",
+        #(post.name, post.price, post.availbale, post.inventory, id)
+    #)
+    update_post = db.query(models.Product).filter(models.Product.id == id)
+    update = update_post.first()
 
-    if updated_post is None:
+    if update==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with this id:{id} not found")
-    
-    return {"data": updated_post}
+
+    update_post.update(post.dict(),synchronize_session = False)
+    db.commit()
+    return {"data": update_post.first()}
